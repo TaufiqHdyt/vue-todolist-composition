@@ -12,7 +12,8 @@ const store = useListStore()
 const defaultInput = {
   name: '',
   hobby: '',
-  description: ''
+  description: '',
+  completed: false
 }
 
 // ref input
@@ -51,6 +52,14 @@ function detailList(index) {
 
   editing.value = index
 }
+function toggleComplete(index) {
+  const detail = store.getDetail(index)
+
+  store.editList(index, {
+    ...detail.value,
+    completed: !detail.value.completed
+  })
+}
 </script>
 
 <template>
@@ -65,6 +74,9 @@ function detailList(index) {
       <BaseInput v-model="input.name" id="name" name="name" placeholder="John" required />
       <BaseInput v-model="input.hobby" id="hobby" name="hobby" placeholder="Gaming" required />
       <BaseInput v-model="input.description" id="description" name="description" placeholder="Everyday" />
+      <div class="checkbox">
+        <input type="checkbox" v-model="input.completed" name="completed" id="completed"> Completed
+      </div>
       <button type="reset">Cancel</button>
       <button type="submit">{{ editing ? 'Save' : 'Submit' }}</button>
     </form>
@@ -74,7 +86,7 @@ function detailList(index) {
       <!-- (item, index) -->
       <template v-for="(item, index) in store.getList" :key="index">
         <!-- null chaining (?.), nullish coalescing (??); ternary operator; not operator -->
-        <li class="underline">
+        <li :class="{ strike: item?.completed }" @dblclick="toggleComplete(index)">
           <button class="red" @click="() => store.removeList(index)" :disabled="editing !== false">&times;</button>
           <button class="orange" @click="() => detailList(index)" :disabled="editing !== false">&#9998;</button>
           {{ item?.name }} ({{ item?.hobby }}) -
@@ -96,9 +108,13 @@ function detailList(index) {
   /* rem, em, vh, vw */
   padding-block: 1rem;
 
-  & > .underline {
-    text-decoration: underline;
+  & > .strike {
+    text-decoration: line-through;
   }
+}
+
+.checkbox {
+  width: 100%;
 }
 
 button {
