@@ -21,6 +21,11 @@ const router = createRouter({
       path: '/test/:id?',
       name: 'test',
       component: () => import('@/views/TestView.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'Match All',
+      component: () => import('@/views/NotFoundView.vue')
     }
   ]
 })

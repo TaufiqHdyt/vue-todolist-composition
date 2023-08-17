@@ -16,6 +16,7 @@ import HelloWorld from './components/HelloWorld.vue'
         <RouterLink to="/about">About</RouterLink>
         <!-- v-bind: add attribute binding to custom value -->
         <RouterLink :to="{ name: 'test' }">Test</RouterLink>
+        <RouterLink to="404">404</RouterLink>
       </nav>
     </div>
   </header>
