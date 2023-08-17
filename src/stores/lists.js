@@ -18,6 +18,7 @@ export const useListStore = defineStore('list', () => {
 
   // getter
   const getList = computed(() => list)
+  const getDetail = (index) => computed(() => list[index])
 
   // action
   function addList(params) {
@@ -30,5 +31,5 @@ export const useListStore = defineStore('list', () => {
     list.splice(index, 1)
   }
 
-  return { list, getList, addList, removeList }
+  return { list, getList, getDetail, addList, removeList }
 })
