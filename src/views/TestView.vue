@@ -101,6 +101,8 @@ function toggleComplete(index) {
 
 <!-- style default bersifat global -->
 <!-- scoped untuk melimitasi hanya di komponen -->
+<!-- tambahkan lang="scss" agar bisa menggunakan fitur2 scss -->
+<!-- pastikan sudah install package 'sass'; 'npm i sass' -->
 <style scoped lang="scss">
 /* body = font-size: 16px (1rem) */
 .form {
