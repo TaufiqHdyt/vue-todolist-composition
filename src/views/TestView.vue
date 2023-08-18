@@ -73,11 +73,11 @@ function toggleComplete(index) {
     <!-- method handler with addList function -->
     <!-- event modifier .enter, .prevent -->
     <form class="form" @submit.prevent="onSubmit" @reset="resetForm">
-      <BaseInput v-model="input.name" id="name" name="name" placeholder="John" required />
-      <BaseInput v-model="input.hobby" id="hobby" name="hobby" placeholder="Gaming" required />
-      <BaseInput v-model="input.description" id="description" name="description" placeholder="Everyday" />
+      <BaseInput v-model="input.name" name="name" placeholder="John" required />
+      <BaseInput v-model="input.hobby" name="hobby" placeholder="Gaming" required />
+      <BaseInput v-model="input.description" name="description" placeholder="Everyday" />
       <div class="checkbox">
-        <input type="checkbox" v-model="input.completed" name="completed" id="completed"> Completed
+        <input type="checkbox" v-model="input.completed" name="completed"> Completed
       </div>
       <button type="reset">Cancel</button>
       <button type="submit">{{ editing !== false ? 'Save' : 'Submit' }}</button>

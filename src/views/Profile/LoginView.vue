@@ -1,29 +1,38 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@store/auth'
+import { useRouter } from 'vue-router'
+import { d$auth } from '@store/auth'
 
 import BaseInput from '@comp/BaseInput.vue'
 
 const router = useRouter()
-const auth = useAuthStore()
+const auth = d$auth()
 
 const initialInput = {
-  username: ''
+  username: '',
+  password: ''
 }
 
 const input = ref({ ...initialInput })
 
 const resetForm = () => Object.assign(input.value, initialInput)
 
-const submitForm = () => {
-  auth.setUsername(input.value.username)
-  resetForm()
+const submitForm = async () => {
+  try {
+    await auth.login(input.value)
 
-  router.replace({
-    name: 'Authenticated',
-    params: { id: auth.getUsername }
-  })
+    auth.setUser()
+
+    resetForm()
+
+    router.replace({
+      name: 'Authenticated',
+      params: { id: auth.g$user.id }
+    })
+  } catch (error) {
+    console.log(error)
+    alert(error)
+  }
 }
 </script>
 
@@ -39,11 +48,19 @@ const submitForm = () => {
       @reset="() => resetForm()"
     >
       <base-input
+        name="username"
         v-model="input.username"
         placeholder="input username"
         required
       />
-      <button type="submit" hidden>Login</button>
+      <base-input
+        name="password"
+        v-model="input.password"
+        placeholder="input password"
+        type="password"
+        required
+      />
+      <button type="submit">Login</button>
     </form>
 
     <!-- conditional rendering using v-else directive -->
