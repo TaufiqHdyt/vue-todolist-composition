@@ -31,7 +31,7 @@ const username = computed(() => auth.g$user.id)
         </RouterLink>
         <!-- v-bind: add attribute binding to custom value -->
         <!-- programmatic navigation -->
-        <RouterLink :to="{ name: 'test' }">Test</RouterLink>
+        <RouterLink :to="{ name: 'Todo' }">Todo</RouterLink>
         <!-- not found page -->
         <RouterLink to="/404">404</RouterLink>
       </nav>

@@ -1,14 +1,21 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useListStore } from '@/stores/lists'
+import { useTodoStore } from '@/stores/todo'
 
-// components
+/**
+ * import component with aliase defined in vite.config.js
+ */
 import BaseInput from '@comp/BaseInput.vue'
 
-// store container
-const store = useListStore()
+/**
+ * initiate store
+ */
+const store = useTodoStore()
 
-// initial input / default input
+/**
+ * initial state for default input value
+ * use in reset form
+ */
 const defaultInput = {
   title: '',
   description: '',
@@ -16,46 +23,68 @@ const defaultInput = {
   completed: false
 }
 
-// ref input
-// spread syntax
+/**
+ * create reactive input from default input value
+ * set editing state to false
+ */
 const input = ref({ ...defaultInput })
 const editing = ref(false)
 
-// function reset form
+/**
+ * reset form to its initial state
+ * also set editing state to false
+ */
 const resetForm = () => {
   Object.assign(input.value, defaultInput)
 
   editing.value = false
 }
 
-// function yg menerima submit form
+/**
+ * submit input form
+ * check if editing state is false, add todo
+ * when editing state contains id, edit todo by that id
+ */
 async function onSubmit() {
   // event.preventDefault();
   const data = { ...input.value }
 
   if (editing.value === false) {
     // add list via store
-    await store.addList(data)
+    await store.addTodo(data)
   } else {
     // edit list
-    store.editList(editing.value, data)
+    await store.editTodo(editing.value, data)
   }
 
   // reset form
   resetForm()
 }
 
-function detailList(index) {
-  const detail = store.getDetail(index)
+/**
+ * get detail todo from store by selected todo id
+ * set input value from detail todo
+ * set editing state to its id
+ * @param {int} id 
+ */
+function detailTodo(id) {
+  const detail = store.getDetail(id)
 
   input.value = { ...detail.value }
 
-  editing.value = index
+  editing.value = id
 }
-function toggleComplete(id) {
+
+/**
+ * get detail todo from store by selected todo id
+ * take its completed value than toggle it
+ * send updated value
+ * @param {int} id 
+ */
+async function toggleComplete(id) {
   const detail = store.getDetail(id)
 
-  store.editList(id, {
+  await store.editTodo(id, {
     // pass all entries in detail object
     ...detail.value,
     // take completed value then toggle it
@@ -63,7 +92,11 @@ function toggleComplete(id) {
   })
 }
 
-onMounted(async () => await store.initList())
+/**
+ * when page is mounted / opened in browser,
+ * get todo list from back end server
+ */
+onMounted(async () => await store.init())
 </script>
 
 <template>
@@ -88,11 +121,11 @@ onMounted(async () => await store.initList())
     <h4>Tasks</h4>
     <ol class="list">
       <!-- (item, index) -->
-      <template v-for="(item, index) in store.getList" :key="index">
+      <template v-for="(item, index) in store.getTodo" :key="index">
         <!-- null chaining (?.), nullish coalescing (??); ternary operator; not operator -->
         <li :class="{ strike: item?.completed }" @dblclick="toggleComplete(item.id)">
           <button class="red" @click="() => store.removeList(item.id)" :disabled="editing !== false">&times;</button>
-          <button class="orange" @click="() => detailList(item.id)" :disabled="editing !== false">&#9998;</button>
+          <button class="orange" @click="() => detailTodo(item.id)" :disabled="editing !== false">&#9998;</button>
           {{ item?.title }} - {{ !!item?.description ? item.description : '' }}
         </li>
       </template>
@@ -104,7 +137,7 @@ onMounted(async () => await store.initList())
 <!-- scoped untuk melimitasi hanya di komponen -->
 <!-- tambahkan lang="scss" agar bisa menggunakan fitur2 scss -->
 <!-- pastikan sudah install package 'sass'; 'npm i sass' -->
-<style scoped lang="scss">
+<style scoped>
 /* body = font-size: 16px (1rem) */
 .form {
   margin-block-end: 2rem;
