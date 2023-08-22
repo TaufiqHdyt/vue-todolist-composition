@@ -1,39 +1,52 @@
-import { reactive, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+
+import * as s$list from '@/services/lists'
 
 export const useListStore = defineStore('list', () => {
   // state
-  const list = reactive([
-    {
-      name: 'John',
-      hobby: 'Renang',
-      description: 'Everyweek'
-    },
-    {
-      name: 'Doe',
-      hobby: 'Coding',
-      description: null
-    }
-  ])
+  const list = ref([])
 
   // getter
-  const getList = computed(() => list)
+  const getList = computed(() => list.value)
   // getter with params
-  const getDetail = (index) => computed(() => list[index])
+  const getDetail = (id) => computed(() => list.value.find(( obj ) => obj.id === id))
 
   // action
-  function addList(params) {
-    if (params) {
-      list.push(params)
+  async function initList() {
+    try {
+      const { data } = await s$list.list()
+      list.value = data
+    } catch ({ message, error }) {
+      throw message ?? error
     }
   }
-  const removeList = (index) => {
-    // use splice to delete instead of filter then assign to existing reactive state
-    list.splice(index, 1)
-  }
-  const editList = (index, data) => {
-    list[index] = data
+
+  async function addList(data) {
+    try {
+      await s$list.add(data)
+      await initList()
+    } catch ({ message, error }) {
+      throw message ?? error
+    }
   }
 
-  return { list, getList, getDetail, addList, removeList, editList }
+  const removeList = async (id) => {
+    try {
+      await s$list.remove(id)
+      await initList()
+    } catch ({ message, error }) {
+      throw message ?? error
+    }
+  }
+  const editList = async (id, data) => {
+    try {
+      await s$list.edit(id, data)
+      await initList()
+    } catch ({ message, error }) {
+      throw message ?? error
+    }
+  }
+
+  return { getList, initList, getDetail, addList, removeList, editList }
 })
