@@ -6,6 +6,7 @@ import { useTodoStore } from '@/stores/todo'
  * import component with aliase defined in vite.config.js
  */
 import BaseInput from '@comp/BaseInput.vue'
+import BaseTable from '@comp/BaseTable.vue'
 
 /**
  * initiate store
@@ -21,6 +22,19 @@ const defaultInput = {
   description: '',
   category: '',
   completed: false
+}
+const table = {
+  columns: ['id', 'title', 'description', 'completed'],
+  actions: [
+    {
+      title: 'log',
+      event: 'log-event'
+    },
+    {
+      title: 'toggle',
+      event: 'toggle-event'
+    }
+  ]
 }
 
 /**
@@ -65,7 +79,7 @@ async function onSubmit() {
  * get detail todo from store by selected todo id
  * set input value from detail todo
  * set editing state to its id
- * @param {int} id 
+ * @param {int} id
  */
 function detailTodo(id) {
   const detail = store.getDetail(id)
@@ -79,7 +93,7 @@ function detailTodo(id) {
  * get detail todo from store by selected todo id
  * take its completed value than toggle it
  * send updated value
- * @param {int} id 
+ * @param {int} id
  */
 async function toggleComplete(id) {
   const detail = store.getDetail(id)
@@ -90,6 +104,21 @@ async function toggleComplete(id) {
     // take completed value then toggle it
     completed: !detail.value.completed
   })
+}
+
+async function handleLogEvent(row) {
+  try {
+    console.log(row)
+  } catch (error) {
+    console.error(error)
+  }
+}
+async function handleToggleEvent(row) {
+  try {
+    await toggleComplete(row.id)
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 /**
@@ -130,6 +159,15 @@ onMounted(async () => await store.init())
         </li>
       </template>
     </ol>
+
+    <h4>Table</h4>
+    <BaseTable
+      :data="store.getTodo"
+      :columns="table.columns"
+      :actions="table.actions"
+      @log-event="handleLogEvent"
+      @toggle-event="handleToggleEvent"
+    />
   </div>
 </template>
 
