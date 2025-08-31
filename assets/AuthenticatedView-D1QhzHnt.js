@@ -1,1 +1,0 @@
-import{c as t,a,t as s,u as r,p as o,o as n}from"./index-DuBjQBJg.js";const p={__name:"AuthenticatedView",setup(c){const e=o();return(u,l)=>(n(),t("div",null,[a("h1",null,s(r(e).params.id||"User")+" Detail",1)]))}};export{p as default};
