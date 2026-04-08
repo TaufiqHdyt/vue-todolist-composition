@@ -1,0 +1,1 @@
+import{$ as e,F as t,g as n,i as r,o as i}from"./runtime-core.esm-bundler-DkEA_Hgp.js";import{a}from"./vue-router-DM3Ilzre.js";var o={__name:`AuthenticatedView`,setup(o){let s=a();return(a,o)=>(n(),i(`div`,null,[r(`h1`,null,e(t(s).params.id||`User`)+` Detail`,1)]))}};export{o as default};
