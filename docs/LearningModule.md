@@ -1397,6 +1397,339 @@ Setelah menyelesaikan semua task dan mencapai code coverage > 80%, Anda siap unt
 
 ---
 
+## 🚀 Deployment
+
+### File: `.env`, `vite.config.js`, `dist/`
+
+### Topik Pembelajaran
+
+#### 10.1 Environment Variables Setup
+
+```bash
+# .env (development)
+VITE_API_URL=http://localhost:8080/api
+
+# .env.production (production)
+VITE_API_URL=https://api.yourapp.com/api
+VITE_API_TOKEN=your-secret-token
+```
+
+#### 10.2 Vite Production Build
+
+```bash
+# Build untuk production
+pnpm build
+
+# Output akan ada di folder 'dist'
+# Cek hasilnya
+ls dist/
+```
+
+```javascript
+// vite.config.js (deployment config)
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  build: {
+    // minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,       // remove console.log
+        drop_debugger: true       // remove debugger
+      }
+    },
+    // chunk splitting
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'pinia', 'vue-router'],
+          axios: ['axios']
+        }
+      }
+    },
+    // sourcemaps
+    sourcemap: process.env.NODE_ENV === 'development'
+  }
+})
+```
+
+#### 10.3 Static Hosting (Netlify/Vercel)
+
+```bash
+# Build project
+pnpm build
+
+# Upload dist/ ke Netlify
+# Atau via Git
+git add dist/
+git commit -m "add production build"
+git push origin main
+
+# Di Netlify dashboard
+# Base directory: dist/
+# Build command: pnpm build
+# Publish directory: dist
+```
+
+**Netlify Configuration (.netlify.toml):**
+
+```toml
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+```
+
+#### 10.4 Static Hosting (GitHub Pages)
+
+```bash
+# Setup GitHub Pages
+pnpm build
+# Add to gh-pages branch
+git checkout -b gh-pages
+cp -r dist/* gh-pages/
+git add gh-pages/
+git commit -m "deploy to gh-pages"
+git push origin gh-pages
+```
+
+#### 10.5 Cloudflare Pages
+
+```bash
+# Setup untuk Cloudflare
+pnpm build
+
+# Create wrangler.toml
+cat > wrangler.toml << EOF
+name = "vue-todolist"
+compatibility_date = "2024-01-01"
+
+[[build]
+  command = "pnpm build"
+  functions = ["./dist"]
+EOF
+
+# Deploy
+npx wrangler deploy dist/index.html
+```
+
+#### 10.6 Deployment Checklist
+
+- [ ] Build project: `pnpm build`
+- [ ] Check build size: `ls -lh dist/`
+- [ ] Test production build di local server
+- [ ] Verify API endpoint works
+- [ ] Check SEO meta tags
+- [ ] Add SSL certificate
+- [ ] Configure CORS
+- [ ] Setup monitoring (Sentry, Google Analytics)
+- [ ] Backup strategy
+- [ ] CI/CD pipeline setup
+
+#### 10.7 Monitoring & Analytics
+
+```javascript
+// Add analytics dalam production build
+// main.js - production only
+if (import.meta.env.PROD) {
+  import('vue-analytics').then(({ default: analytics }) => {
+    analytics.init('G-XXXXXXXXXX') // Google Analytics
+  })
+}
+
+// Add error tracking
+import sentry from '@sentry/vue'
+
+if (import.meta.env.SENTRY_DSN) {
+  await sentry.init({
+    dsn: import.meta.env.SENTRY_DSN,
+    integrations: [
+      new sentry.BrowserTracing(),
+      new sentry.Replay({
+        maskAllText: true,
+        maskAllInputs: true
+      })
+    ]
+  })
+}
+```
+
+#### 10.8 CI/CD dengan GitHub Actions
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build
+        run: pnpm build
+      
+      - name: Deploy to Netlify
+        uses: netlify/cli@main
+        with:
+          args: deploy --prod dist
+```
+
+---
+
+## 📋 Checklist Pembelajaran
+
+### Basic (Wajib)
+- [ ] Setup project dengan Vite
+- [ ] Buat store dengan Pinia
+- [ ] Implementasi routing
+- [ ] CRUD operations
+- [ ] API integration
+
+### Intermediate
+- [ ] Authentication system
+- [ ] Protected routes
+- [ ] Error handling
+- [ ] Loading states
+- [ ] Form validation
+
+### Advanced
+- [ ] Unit tests
+- [ ] Code coverage > 80%
+- [ ] ESLint configuration
+- [ ] Responsive design
+- [ ] Dark mode toggle
+- [ ] Deployment setup
+
+---
+
+## 📝 Resources
+
+### Official Documentation
+- [Vue.js Guide](https://vuejs.org/guide/)
+- [Pinia](https://pinia.vuejs.org/)
+- [Vue Router](https://router.vuejs.org/)
+- [Vite](https://vitejs.dev/guide/)
+- [Axios](https://axios-http.com/)
+
+### Third Party
+- [Vue Test Utils](https://test-utils.vuejs.org/)
+- [Vitest](https://vitest.dev/)
+- [Netlify](https://www.netlify.com/)
+- [Vercel](https://vercel.com/)
+
+### Best Practices
+- [Vue Best Practices](https://vuejs.org/guide/scaling-up/best-practices.html)
+- [Vite Best Practices](https://vitejs.dev/guide/)
+- [Deployment Checklist](https://www.netlify.com/blog/static-site-generators-best-practices/)
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Issue:** Store tidak tersimpan
+- **Solution:** Pastikan `createPinia()` terdaftar di `main.js`
+
+**Issue:** Route 404
+- **Solution:** Cek file di folder `views` atau gunakan lazy loading
+
+**Issue:** API 401
+- **Solution:** Pastikan token disimpan di cookie dengan benar
+
+**Issue:** Component tidak render
+- **Solution:** Cek import dan `defineProps`
+
+**Issue:** Build failed
+- **Solution:** `pnpm install` ulang
+- **Solution:** Cek `.env` variables
+- **Solution:** Bersihkan `node_modules`
+
+**Issue:** CORS error di production
+- **Solution:** Setup CORS di backend API
+- **Solution:** Gunakan proxy di vite.config.js
+
+---
+
+## ✍️ Assignment
+
+### Task 1: Enhanced Todo App
+1. Add filtering (all/active/completed)
+2. Add search by title
+3. Add date sorting
+4. Export/import as JSON
+5. Dark mode toggle
+
+### Task 2: User Dashboard
+1. Profile page with user info
+2. Edit profile form
+3. Change password
+4. Account settings
+
+### Task 3: API Integration
+1. Add user CRUD endpoints
+2. Add todo filtering API
+3. Add statistics endpoint
+4. Handle pagination
+
+### Task 4: Deployment
+1. Build production build
+2. Deploy ke Netlify atau Vercel
+3. Setup CI/CD dengan GitHub Actions
+4. Add monitoring & analytics
+
+---
+
+## 🎓 Certification
+
+Setelah menyelesaikan semua task dan mencapai code coverage > 80%, Anda siap untuk:
+
+- [ ] Build Vue app dari nol
+- [ ] Implementasi fitur baru
+- [ ] Debug aplikasi Vue
+- [ ] Write unit tests
+- [ ] Code review
+- [ ] Deploy aplikasi Vue
+- [ ] Setup CI/CD pipeline
+
+---
+
 **Selamat belajar Vue.js! 🚀**
 
 *Created for Vue TODO List Project*
